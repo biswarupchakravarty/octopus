@@ -20,6 +20,7 @@ w.router = [
 }
 ]
 
+//test fixture??
 try {
 	//start application
 	w.start()
