@@ -20,4 +20,8 @@ w.router = [
 }
 ]
 
+//start application
 w.start()
+
+//stop application
+w.stop()
