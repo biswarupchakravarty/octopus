@@ -12,22 +12,26 @@ w.onShutdown = function() {
 
 w.router = [
 {
-	canHandle: function() {return true},
+	canHandle: function(url) {
+		return url.indexOf('exist') != -1
+	},
 	handler: function(req, resp) {
 		resp.writeHead({'Server-Process-Id': process.pid})
+		resp.writeHead({'Content-Type': 'text/html'})
 		resp.write('hello world, i am a web application')
+	}
+},
+{
+	canHandle: function(url) {
+		return url.indexOf('error') != -1
+	},
+	handler: function(req, resp) {
+		resp.writeHead({'Server-Process-Id': process.pid})
+		resp.writeHead({'Content-Type': 'text/html'})
+		resp.write('hello world, i am a web application')
+		throw new Error()
 	}
 }
 ]
 
-//test fixture??
-try {
-	//start application
-	w.start()
-
-	//stop application
-	w.stop()
-	
-	console.log('test passed')
-} catch(e) {
-	console.log('test failed')
+w.start()

@@ -1,8 +1,12 @@
 var http = require('http')
 var webapp = require('./WebApplication')
 var url = require('url')
+var OctopusResponse = require('./Response')
 
-
+var error404Handler = require('./DefaultHandlers').error404Handler
+var error500Handler = require('./DefaultHandlers').error500Handler
+var defaultHandler = require('./DefaultHandlers').defaultHandler
+var failSafeHandler = require('./DefaultHandlers').failSafeHandler
 
 function Octopus(port) {
 	port = port || 8080
@@ -11,38 +15,26 @@ function Octopus(port) {
 	var applications = []
 	
 	
-	//the internal handle to the actual webserver
 	var server = http.createServer(function(req, resp) {
-			getHandler(req.url)(req, resp)
+			//create response object
+			var response = new OctopusResponse()
+			
+			//get handler
+			var handler = getHandler(req.url)
+			
+			//execute handler
+			handler(req, response)
+			
+			//write the headers
+			resp.writeHead(response.getStatus(), response.getHeaders())
+			
+			//write contents and end request
+			resp.end(response.getContent())
 		})
 	.listen(port)
 	
 	
-	//default handler
-	var defaultHandler = function(req, resp) {
-		console.log('root hit for: ' + req.url)
-		
-		resp.writeHead(200, {'Content-Type': 'text/html'})
-		resp.end('<h1>Hello World</h1><p>This is the default page of the Octopus server.</p>')
-	}
 	
-	//404 handler
-	var four04Handler = function(req, resp) {
-		console.log('404 hit for: ' + req.url)
-		
-		resp.writeHead(404, {'Content-Type': 'text/html'})
-		resp.end('<h1>404, bummer :(</h1><p>Could not find the application you were looking for.</p>')
-	}
-	
-	//500 error handler
-	var errHandler = function(req, resp, err) {
-		console.log('500 hit for: ' + req.url)
-		
-		resp.writeHead({'Content-Type': 'text/html'})
-		resp.write('<h1>Damn! 500 internal server error</h1><p>Your application code bugged out you noob</p>')
-		if (err !== undefined)
-			resp.write('<p>Here\'s the offending error: <span style="color: red">' + err + '</span></p>')
-	}
 	
 	//delegation login
 	var getHandler = function(requestUrl) {
@@ -62,26 +54,13 @@ function Octopus(port) {
 				//TODO
 				
 				//handle non resource requests
-				for (var y=0;y<app.router.length;y=y+1) {
-						if (app.router[y].canHandle(requestUrl))
-							return function (req, resp) {
-								var newResponse = new Response()
-								try {
-									app.router[y].handler(req, newResponse)
-									console.log('wrote ' + parseFloat(newResponse.getContent().length/1024).toFixed(3) + 'kb for ' + req.url)
-								} catch(e) {
-									newResponse.clearContent()
-									errHandler(req, newResponse, e)
-								} finally {
-									resp.writeHead(200, newResponse.getHeaders())
-									resp.end(newResponse.getContent())
-								}
-							}
-				}
+				for (var y=0;y<app.router.length;y=y+1) 
+						if (app.router[y].canHandle(requestUrl.pathname))
+							return failSafeHandler(app.router[y].handler)
+
 			}
 		}
-		
-		return four04Handler;
+		return error404Handler;
 	}
 	
 	//start a webapplication
@@ -126,41 +105,6 @@ function Octopus(port) {
 	}
 	
 	return that
-}
-
-//response object to be passed to request handlers
-function Response(finishCallback) {
-	if (!this instanceof Response)
-		return new Response()
-		
-	var content = ''
-	var headers = {}
-	
-	this.write = function(str) {
-		content += str.toString()
-	}
-	
-	this.writeHead = function(o) {
-		for (var head in o)
-			if (typeof(o[head]) != 'function')
-				headers[head] = o[head]
-	}
-	
-	this.getContent = function() {
-		return content
-	}
-	
-	this.getHeaders = function() {
-		return headers
-	}
-	
-	this.clearContent = function() {
-		content = ''
-	}
-	
-	this.end = function(str) {
-		content += str
-	}
 }
 
 //single instance
