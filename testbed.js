@@ -20,8 +20,13 @@ w.router = [
 }
 ]
 
-//start application
-w.start()
+try {
+	//start application
+	w.start()
 
-//stop application
-w.stop()
+	//stop application
+	w.stop()
+	
+	console.log('test passed')
+} catch(e) {
+	console.log('test failed')
