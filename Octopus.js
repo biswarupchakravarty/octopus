@@ -37,12 +37,10 @@ function Octopus(port) {
 					.createServer(serverAction)
 					.listen(port)
 	
-	
-	
-	
 	//delegation login
 	var getHandler = function(requestUrl) {
 		requestUrl = url.parse(requestUrl)
+		
 		var segments = []
 		for (var x=0;x<requestUrl.pathname.split('/').length;x=x+1)
 			if (requestUrl.pathname.split('/')[x].length != 0)
