@@ -48,6 +48,11 @@ function WebApplication(options) {
 			this.server.stopApplication(this)
 		return this
 	}
+	
+	this.changeServerPort = function() {
+		if (this.server && typeof(this.server.setPort) == 'function')
+			this.server.setPort.apply(arguments.callee, [arguments])
+	}
 }
 
 module.exports = WebApplication;

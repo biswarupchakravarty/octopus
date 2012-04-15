@@ -9,29 +9,33 @@ var defaultHandler = require('./DefaultHandlers').defaultHandler
 var failSafeHandler = require('./DefaultHandlers').failSafeHandler
 
 function Octopus(port) {
+	if (!this instanceof Octopus)
+		return new Octopus()
+	
 	port = port || 8080
 
-	var that = {}
 	var applications = []
 	
+	var serverAction = function(req, resp) {
+		//create response object
+		var response = new OctopusResponse()
+		
+		//get handler
+		var handler = getHandler(req.url)
+		
+		//execute handler
+		handler(req, response)
+		
+		//write the headers
+		resp.writeHead(response.getStatus(), response.getHeaders())
+		
+		//write contents and end request
+		resp.end(response.getContent())
+	}
 	
-	var server = http.createServer(function(req, resp) {
-			//create response object
-			var response = new OctopusResponse()
-			
-			//get handler
-			var handler = getHandler(req.url)
-			
-			//execute handler
-			handler(req, response)
-			
-			//write the headers
-			resp.writeHead(response.getStatus(), response.getHeaders())
-			
-			//write contents and end request
-			resp.end(response.getContent())
-		})
-	.listen(port)
+	var server = http
+					.createServer(serverAction)
+					.listen(port)
 	
 	
 	
@@ -64,7 +68,7 @@ function Octopus(port) {
 	}
 	
 	//start a webapplication
-	that.startApplication = function(app) {
+	this.startApplication = function(app) {
 		if (!app || !app.id) return
 		
 		try {
@@ -80,7 +84,7 @@ function Octopus(port) {
 	}
 	
 	//stop a webapplication
-	that.stopApplication = function(app) {
+	this.stopApplication = function(app) {
 		if (!app || !app.id) return
 				
 		try {
@@ -96,18 +100,16 @@ function Octopus(port) {
 	}
 	
 	//creates a new webapplication and returns it after registering it
-	that.newApplication = function(options) {
+	this.newApplication = function(options) {
 		var app = new webapp(options)
 		app.server = this
 		applications.push(app)
 		
 		return app
 	}
-	
-	return that
 }
 
 //single instance
-var singleton = Octopus()
+var singleton = new Octopus()
 
 exports.server = singleton

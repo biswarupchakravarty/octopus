@@ -1,9 +1,9 @@
 var server = require('./Octopus').server
 
-var w = server.newApplication()
+var w = server.newApplication({root: 'crazy'})
 
 w.onStartup = function() {
-	console.log('i am born!!')
+	console.log('I am ' + this.root + '.')
 }
 
 w.onShutdown = function() {
