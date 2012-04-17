@@ -7,20 +7,29 @@ var error404 = function(request, response) {
 }
 
 //500 handler
-var error500 = function(request, response) {
+var error500 = function(request, response, e) {
+	//give generic response
 	response.writeHead({'Content-Type': 'text/html'})
 	response.write('<h2>Something broke at ' + request.url + '.</h2><br/><p>Actually, there was an internal error in the resource you requested. </p>')
+	
+	//lets show the error
+	if (typeof(e) != 'undefined')
+		response.write('All we know is: <b>' + e + '</b>')
+		
+	//set status to what error
 	response.setStatus(500)
 }
 
 //default handler
 var defaultHandler = function(request, response) {
-	
+	//generic response, server is up and running
 	response.writeHead({'Content-Type': 'text/html'})
 	response.end('<h1>Hello World!</h1><p>This is the default page of the Octopus server.</p>')
 	response.setStatus(200)
 }
 
+//accept a delegate, wrap in try-catch 
+//in case of exception, output error 500
 var failSafeHandler = function (innerHandler) {
 	if (!innerHandler || typeof(innerHandler) != 'function') return
 	
@@ -29,7 +38,7 @@ var failSafeHandler = function (innerHandler) {
 			innerHandler(req, res)
 		} catch(e) {
 			res.clearContent()
-			error500(req, res)
+			error500(req, res, e)
 		}
 	}
 }

@@ -7,8 +7,14 @@ function OctopusResponse() {
 
 	var status = '200'
 	
-	this.getStatus = function() {return status }
-	this.setStatus = function(s) { if (s && parseInt(s) == s) status = s.toString()}
+	this.getStatus = function() {
+		return status
+	}
+	
+	this.setStatus = function(s) {
+		if (s && parseInt(s) == s)
+			status = s.toString()
+	}
 	
 	this.write = function(str) {
 		content += str.toString()
@@ -25,6 +31,15 @@ function OctopusResponse() {
 	}
 	
 	this.getHeaders = function() {
+		//write cookies
+		if (this.cookies.length > 0) {
+			var cookieHeader = ''
+			for (var x=0 ; x < this.cookies.length ; x=x+1)
+				cookieHeader += this.cookies[x].toHeader() + ';'
+			headers["Set-Cookie"] = cookieHeader
+		}
+		
+		//return headers
 		return headers
 	}
 	
@@ -35,6 +50,9 @@ function OctopusResponse() {
 	this.end = function(str) {
 		content += str
 	}
+	
+	this.cookies = []
+	
 }
 
 module.exports = OctopusResponse

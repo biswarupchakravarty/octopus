@@ -2,6 +2,8 @@ var http = require('http')
 var webapp = require('./WebApplication')
 var url = require('url')
 var OctopusResponse = require('./Response')
+var oCookie = require('./Cookies').cookie
+
 
 var error404Handler = require('./DefaultHandlers').error404Handler
 var error500Handler = require('./DefaultHandlers').error500Handler
@@ -56,7 +58,7 @@ function Octopus(port) {
 				//TODO
 				
 				//handle non resource requests
-				for (var y=0;y<app.router.length;y=y+1) 
+				for (var y=0;y<app.router.length;y=y+1)
 						if (app.router[y].canHandle(requestUrl.pathname))
 							return failSafeHandler(app.router[y].handler)
 

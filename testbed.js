@@ -1,4 +1,5 @@
 var server = require('./Octopus').server
+var Cookie = require('./Cookies').cookie
 
 var w = server.newApplication({root: 'crazy'})
 
@@ -19,6 +20,11 @@ w.router = [
 		resp.writeHead({'Server-Process-Id': process.pid})
 		resp.writeHead({'Content-Type': 'text/html'})
 		resp.write('hello world, i am a web application')
+		
+		var c = new Cookie()
+		c.name = 'test'
+		c.value = 'value is here'
+		resp.cookies.push(c)
 	}
 },
 {
