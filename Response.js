@@ -31,16 +31,35 @@ function OctopusResponse() {
 	}
 	
 	this.getHeaders = function() {
-		//write cookies
-		if (this.cookies.length > 0) {
-			var cookieHeader = ''
-			for (var x=0 ; x < this.cookies.length ; x=x+1)
-				cookieHeader += this.cookies[x].toHeader() + ';'
-			headers["Set-Cookie"] = cookieHeader
+		var arr = []
+		
+		for (var key in headers) {
+			arr.push([key,headers[key]])
 		}
 		
-		//return headers
-		return headers
+		for (var c in cookies) {
+			arr.push(['Set-Cookie',cookies[c].toHeader()])
+		}
+		
+		return arr
+	}
+	
+	//cookie container
+	var cookies = []
+	
+	this.setCookie = function(cookie) {
+		cookies.push(cookie)
+	}
+	
+	this.getCookie = function(cName) {
+		for (var x=0;x<cookies.length;x=x+1)
+			if (cookies[x].name.toLowerCase() == cName.toLowerCase())
+				return cookies[x]
+		return null
+	}
+	
+	this.getCookies = function() {
+		return cookies
 	}
 	
 	this.clearContent = function() {
@@ -52,7 +71,6 @@ function OctopusResponse() {
 	}
 	
 	this.cookies = []
-	
 }
 
 module.exports = OctopusResponse

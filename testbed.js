@@ -24,7 +24,12 @@ w.router = [
 		var c = new Cookie()
 		c.name = 'test'
 		c.value = 'value is here'
-		resp.cookies.push(c)
+		resp.setCookie(c)
+		
+		var c2 = new Cookie()
+		c2.name = 'test2'
+		c2.value = 'value should be ehre'
+		resp.setCookie(c2)
 	}
 },
 {
