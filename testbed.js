@@ -21,6 +21,9 @@ w.router = [
 		resp.writeHead({'Content-Type': 'text/html'})
 		resp.write('hello world, i am a web application')
 		
+		
+		console.log(typeof this.testParam)
+		
 		var c = new Cookie()
 		c.name = 'test'
 		c.value = 'value is here'

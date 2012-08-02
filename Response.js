@@ -69,8 +69,6 @@ function OctopusResponse() {
 	this.end = function(str) {
 		content += str
 	}
-	
-	this.cookies = []
 }
 
 module.exports = OctopusResponse

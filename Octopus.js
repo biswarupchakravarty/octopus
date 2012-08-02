@@ -25,8 +25,12 @@ function Octopus(port) {
 		//get handler
 		var handler = getHandler(req.url)
 		
-		//execute handler
-		handler(req, response)
+		//execute handler in clean scope
+		var exec = function() {
+			var session = {valid: true}
+			handler.apply({testParam:'b'}, [req, response])
+		}
+		exec()
 		
 		//write the headers
 		resp.writeHead(response.getStatus(), response.getHeaders())
